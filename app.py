@@ -74,13 +74,13 @@ def detail(plant_id):
     # plant's id.
     # HINT: This query should be on the `harvests` collection, not the `plants`
     # collection.
-    harvests = mongo.db.harvests.find({'plant_id': ObjectId})
+    harvests = mongo.db.harvests.find({'plant_id': ObjectId(plant_id)})
 
     context = {
         'plant' : plant_to_show,
         'harvests': harvests
     }
-    return render_template('detail.html')
+    return render_template('detail.html', **context)
 
 @app.route('/harvest/<plant_id>', methods=['POST'])
 def harvest(plant_id):
@@ -89,14 +89,13 @@ def harvest(plant_id):
     """
 
     new_harvest = {
-        'quantity': request.form.get(harvested_amount), # e.g. '3 tomatoes'
-        'date': request.form.get(date_planted),
-        'plant_id': plant_id
+        'quantity': request.form.get('harvested_amount'), # e.g. '3 tomatoes'
+        'date': request.form.get('date_planted'),
+        'plant_id': ObjectId(plant_id)
     }
 
-    db.harvests.insert_one(new_harvest)
+    mongo.db.harvests.insert_one(new_harvest)
 
-    result = mongo.db.harvests.insert_one(new_harvest)
 
     return redirect(url_for('detail', plant_id=plant_id))
 
@@ -146,7 +145,7 @@ def delete(plant_id):
             }
         }   
     )
-    return redirect(url_for('base', plant_id=plant_id))
+    return redirect(url_for('plants_list', plant_id=plant_id))
     # TODO: Also, make a `delete_many` database call to delete all harvests with
     # the given plant id.
 
