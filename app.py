@@ -18,9 +18,6 @@ mongo = PyMongo(app)
 @app.route('/')
 def plants_list():
     """Display the plants list page."""
-
-    # TODO: Replace the following line with a database call to retrieve *all*
-    # plants from the Mongo database's `plants` collection.
     plants_data = mongo.db.plants.find({})
 
     context = {
@@ -37,8 +34,6 @@ def about():
 def create():
     """Display the plant creation page & process data from the creation form."""
     if request.method == 'POST':
-        # TODO: Get the new plant's name, variety, photo, & date planted, and 
-        # store them in the object below.
         new_plant = {
             'name': request.form.get('plant_name'),
             'variety': request.form.get('variety'),
@@ -46,9 +41,6 @@ def create():
             'date_planted': request.form.get('date_planted')
         }
 
-        # TODO: Make an `insert_one` database call to insert the object into the
-        # database's `plants` collection, and get its inserted id. Pass the 
-        # inserted id into the redirect call below.
         result = mongo.db.plants.insert_one(new_plant)
         inserted_id = result.inserted_id
 
@@ -61,16 +53,8 @@ def create():
 def detail(plant_id):
     """Display the plant detail page & process data from the harvest form."""
 
-    # TODO: Replace the following line with a database call to retrieve *one*
-    # plant from the database, whose id matches the id passed in via the URL.
-
-
     plant_to_show = mongo.db.plants.find_one({ '_id': ObjectId(plant_id) })
 
-    # TODO: Use the `find` database operation to find all harvests for the
-    # plant's id.
-    # HINT: This query should be on the `harvests` collection, not the `plants`
-    # collection.
     harvests = mongo.db.harvests.find({'plant_id': ObjectId(plant_id)})
 
     context = {
@@ -100,9 +84,7 @@ def harvest(plant_id):
 def edit(plant_id):
     """Shows the edit page and accepts a POST request with edited data."""
     if request.method == 'POST':
-        # TODO: Make an `update_one` database call to update the plant with the
-        # given id. Make sure to put the updated fields in the `$set` object.
-        response = mongo.db.plant.update_one(
+        response = mongo.db.plants.update_one(
             {'_id': ObjectId(plant_id)},
             {
                 '$set': {
@@ -113,15 +95,11 @@ def edit(plant_id):
                 }
             }
         )
-
-
         print(plant_id)
         print(response)
         
         return redirect(url_for('detail', plant_id=plant_id))
     else:
-        # TODO: Make a `find_one` database call to get the plant object with the
-        # passed-in _id.
         plant_to_show = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
 
         context = {
